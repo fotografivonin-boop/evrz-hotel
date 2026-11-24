@@ -1,120 +1,115 @@
-{% load static %}
-<!doctype html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>
-      Бронирование | EVRZ Hotel</title>
-    <link rel="icon" href="{% static 'images/evrz-icon.png' %}" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
-    <script src="{% static 'js/app.js' %}?v=2" defer>
-    </script>
-  </head>
-  <body>
-    <header class="header-site">
-      <div class="wrap under_header">
-        <a class="logo" href="{% url 'catalog' %}">
-          <img class="logo-icon" src="{% static 'images/evrz-icon.png' %}" alt="" width="32" height="32"> EVRZ Hotel</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">☰ <span>Меню</span>
-        </button>
-        <div id="navigation" class="gap">
-          <a href="{% url 'catalog' %}">Каталог номеров</a>
-          <a href="{% url 'about' %}">О EVRZ Hotel</a>
-          <a class="auth-{{ user.is_authenticated }}" href="{% url 'my_bookings' %}">Мои брони</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'staff_bookings' %}">Стойка</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'stats' %}">Статистика</a>
-          <a class="guest-{{ user.is_authenticated }}" href="{% url 'login' %}">Войти</a>
-          <a class="nav-outline guest-{{ user.is_authenticated }}" href="{% url 'register' %}">Регистрация</a>
-          <form class="logout-{{ user.is_authenticated }}" method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="nav-button">Выйти</button>
-          </form>
-        </div>
-      </div>
-    </header>
-    <div class="wrap main" role="main">
-      {% for message in messages %}
-          <div class="notice">{{ message }}</div>
-        {% endfor %}
-      
+{% extends 'base.html' %}
+
+{% block title %}Бронирование номера {{ room.room_number }}{% endblock %}
+
+{% block content %}
   <p class="breadcrumbs">
-    <a href="{% url 'catalog' %}">Каталог</a> / <a href="{% url 'room_detail' room.pk %}">Номер {{ room.room_number }}</a> / Бронирование</p>
-  <h1>Бронирование номера</h1>
-  <p class="muted intro">Заполните данные, чтобы забронировать номер {{ room.room_number }}</p>
+    <a href="{% url 'room_list' %}">Каталог</a> / <a href="{% url 'room_detail' room.pk %}">Номер {{ room.room_number }}</a> / Бронирование
+  </p>
+
+  <h1>Бронирование номера {{ room.room_number }}</h1>
+  <p class="muted">Категория: {{ room.room_type.name }} · Вместимость до {{ room.room_type.max_guests }} чел.</p>
+
   <div class="booking-block">
-    <div class="panel">
-      <h2>Данные бронирования</h2>
-      <form method="post" class="validated-form">
+    <div class="panel booking-form-col">
+      <h2>Данные бронирования и гостей</h2>
+      <form method="post" class="validated-form" novalidate>
         {% csrf_token %}
-        
-          <div class="error-list" role="alert">{{ form.non_field_errors }}</div>
-        
-        <div class="form-pole">
-          <label for="id_check_in_date">Заезд <span class="required">*</span></label>
-          {{ form.check_in_date }}
-          {{ form.check_in_date.errors }}
+
+        <div class="error-list" role="alert">{{ form.non_field_errors }}</div>
+
+        <div class="form-grid-2">
+          <div class="form-pole">
+            <label for="id_check_in_date">Дата заезда <span class="required">*</span></label>
+            {{ form.check_in_date }}
+            {{ form.check_in_date.errors }}
+          </div>
+          <div class="form-pole">
+            <label for="id_check_out_date">Дата выезда <span class="required">*</span></label>
+            {{ form.check_out_date }}
+            {{ form.check_out_date.errors }}
+          </div>
         </div>
-        <div class="form-pole">
-          <label for="id_check_out_date">Выезд <span class="required">*</span></label>
-          {{ form.check_out_date }}
-          {{ form.check_out_date.errors }}
+
+        <div class="form-grid-2">
+          <div class="form-pole">
+            <label for="id_guests_count">Количество гостей (до {{ room.room_type.max_guests }}) <span class="required">*</span></label>
+            {{ form.guests_count }}
+            {{ form.guests_count.errors }}
+          </div>
+          <div class="form-pole">
+            <label for="id_payment_method">Способ оплаты <span class="required">*</span></label>
+            {{ form.payment_method }}
+            {{ form.payment_method.errors }}
+          </div>
         </div>
-        <div class="form-pole">
-          <label for="id_comment">Пожелания</label>
-          {{ form.comment }}
-          {{ form.comment.errors }}
-        </div>
+
+        <h3>Основной проживающий гость</h3>
         <div class="form-pole">
           <label for="id_full_name">ФИО гостя <span class="required">*</span></label>
           {{ form.full_name }}
           {{ form.full_name.errors }}
         </div>
-        <div class="form-pole">
-          <label for="id_phone">Телефон <span class="required">*</span></label>
-          {{ form.phone }}
-          {{ form.phone.errors }}
+
+        <div class="form-grid-2">
+          <div class="form-pole">
+            <label for="id_birth_date">Дата рождения <span class="required">*</span></label>
+            {{ form.birth_date }}
+            {{ form.birth_date.errors }}
+          </div>
+          <div class="form-pole">
+            <label for="id_document_number">Паспорт / документ <span class="required">*</span></label>
+            {{ form.document_number }}
+            {{ form.document_number.errors }}
+          </div>
         </div>
-        <div class="form-pole">
-          <label for="id_email">Электронная почта <span class="required">*</span></label>
-          {{ form.email }}
-          {{ form.email.errors }}
+
+        <div class="form-grid-2">
+          <div class="form-pole">
+            <label for="id_phone">Телефон <span class="required">*</span></label>
+            {{ form.phone }}
+            {{ form.phone.errors }}
+          </div>
+          <div class="form-pole">
+            <label for="id_email">Электронная почта <span class="required">*</span></label>
+            {{ form.email }}
+            {{ form.email.errors }}
+          </div>
         </div>
+
+        <div id="extra-guests-container"></div>
+
+        {% if room.room_type.max_guests > 1 %}
+          <div class="form-pole">
+            <button type="button" id="add-guest-btn" class="secondary small" data-max-guests="{{ room.room_type.max_guests }}">
+              + Добавить ещё гостя (макс. {{ room.room_type.max_guests }})
+            </button>
+          </div>
+        {% endif %}
+
         <div class="form-pole">
-          <label for="id_birth_date">Дата рождения <span class="required">*</span></label>
-          {{ form.birth_date }}
-          {{ form.birth_date.errors }}
+          <label for="id_comment">Пожелания к заселению</label>
+          {{ form.comment }}
+          {{ form.comment.errors }}
         </div>
-        <div class="form-pole">
-          <label for="id_document_number">Документ гостя <span class="required">*</span></label>
-          {{ form.document_number }}
-          {{ form.document_number.errors }}
-        </div>
-        <div class="form-pole">
-          <label for="id_payment_method">Способ оплаты <span class="required">*</span></label>
-          {{ form.payment_method }}
-          {{ form.payment_method.errors }}
-        </div>
+
         <button class="full" type="submit">Подтвердить бронирование</button>
       </form>
     </div>
-    <div class="panel price-block" data-quote-url="{% url 'quote' room.pk %}">
-      <span class="badge warning">РАСЧЁТ СТОИМОСТИ</span>
-      <h2>Ваше бронирование</h2>
-      <p>Номер {{ room.room_number }} · {{ room.room_type.name }}</p>
-      <p class="muted">Базовая цена: {{ room.room_type.base_price }} ₽ / ночь</p>
-      <div id="quote-result" aria-live="polite">Выберите даты заезда и выезда для расчёта.</div>
-      <p class="fine">Окончательная стоимость рассчитывается с учётом сезонных тарифов. Оплата на сайте не подключена: выбранный способ только сохраняется в заявке.</p>
-    </div>
-  </div>
 
-    </div>
-    <footer>
-      <div class="wrap footer-inner">
-        <span class="logo">EVRZ Hotel</span>
-        <span>Удобное бронирование и комфортный отдых</span>
-        <a href="{% url 'about' %}">О EVRZ Hotel</a>
+    <aside class="panel price-block" data-calc-url="{% url 'api_calc_price' %}" data-room-id="{{ room.pk }}">
+      <span class="badge badge-warning">РАСЧЁТ СТОИМОСТИ</span>
+      <h2>Ваше бронирование</h2>
+      <p><strong>Номер {{ room.room_number }}</strong> · {{ room.room_type.name }}</p>
+      <p class="muted num">Базовая цена: {{ room.room_type.base_price|floatformat:0 }} ₽ / ночь</p>
+      <div id="quote-result" class="price-result" aria-live="polite">
+        Выберите даты заезда и выезда для мгновенного расчёта.
       </div>
-    </footer>
-  </body>
-</html>
+      <p id="quote-tariffs" class="fine"></p>
+      <p class="fine">
+        Цена пересчитывается по каждой ночи отдельно с учётом сезонных тарифов без перезагрузки страницы.
+        Заезд в день выезда предыдущего гостя разрешён.
+      </p>
+    </aside>
+  </div>
+{% endblock %}
