@@ -230,6 +230,7 @@ class Command(BaseCommand):
             methods = ['card_online', 'cash_desk', 'pos_desk']
             base_day = date(2026, 11, 2)
             created_bookings = []
+            extra_added = 0
 
             for i in range(32):
                 room = rooms[i % len(rooms)]
@@ -278,13 +279,14 @@ class Command(BaseCommand):
                     phone=f'+7916100{i:04d}',
                 )
                 # Доп. гости (еще 4 гостя = 36 всего)
-                if 1 <= i <= 4 and room.room_type.max_guests >= 2:
+                if extra_added < 4 and room.room_type.max_guests >= 2:
+                    extra_added += 1
                     BookingGuest.objects.create(
                         booking=booking,
-                        full_name=f'Сопровождающий Гость {i}',
-                        birth_date=date(1992 + i, 5, 14),
-                        document_number=f'45 20 {200000 + i}',
-                        phone=f'+7916200{i:04d}',
+                        full_name=f'Сопровождающий Гость {extra_added}',
+                        birth_date=date(1992 + extra_added, 5, 14),
+                        document_number=f'45 20 {200000 + extra_added}',
+                        phone=f'+7916200{extra_added:04d}',
                     )
 
                 pay_status = 'paid' if status in ('confirmed', 'checked_in', 'checked_out') else (
