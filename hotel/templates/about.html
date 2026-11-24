@@ -1,61 +1,22 @@
-{% load static %}
-<!doctype html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>
-      О EVRZ Hotel | EVRZ Hotel</title>
-    <link rel="icon" href="{% static 'images/evrz-icon.png' %}" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
-    <script src="{% static 'js/app.js' %}?v=2" defer>
-    </script>
-  </head>
-  <body>
-    <header class="header-site">
-      <div class="wrap under_header">
-        <a class="logo" href="{% url 'catalog' %}">
-          <img class="logo-icon" src="{% static 'images/evrz-icon.png' %}" alt="" width="32" height="32"> EVRZ Hotel</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">☰ <span>Меню</span>
-        </button>
-        <div id="navigation" class="gap">
-          <a href="{% url 'catalog' %}">Каталог номеров</a>
-          <a href="{% url 'about' %}">О EVRZ Hotel</a>
-          <a class="auth-{{ user.is_authenticated }}" href="{% url 'my_bookings' %}">Мои брони</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'staff_bookings' %}">Стойка</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'stats' %}">Статистика</a>
-          <a class="guest-{{ user.is_authenticated }}" href="{% url 'login' %}">Войти</a>
-          <a class="nav-outline guest-{{ user.is_authenticated }}" href="{% url 'register' %}">Регистрация</a>
-          <form class="logout-{{ user.is_authenticated }}" method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="nav-button">Выйти</button>
-          </form>
-        </div>
-      </div>
-    </header>
-    <div class="wrap main" role="main">
-      {% for message in messages %}
-          <div class="notice">{{ message }}</div>
-        {% endfor %}
-      
-  <div class="form-page">
-    <p class="eyebrow">ДОБРО ПОЖАЛОВАТЬ</p>
-    <h1>О EVRZ Hotel</h1>
-    <p class="lead">Найдите подходящий номер для отдыха или деловой поездки.</p>
-    <div class="panel">
-      <h2>Просто и удобно</h2>
-      <p>Выберите даты и категорию номера в каталоге, проверьте стоимость и оформите бронирование. Все ваши поездки доступны в личном кабинете.</p>
-      <a class="button" href="{% url 'catalog' %}">Выбрать номер</a>
-    </div>
-  </div>
+{% extends 'base.html' %}
 
-    </div>
-    <footer>
-      <div class="wrap footer-inner">
-        <span class="logo">EVRZ Hotel</span>
-        <span>Удобное бронирование и комфортный отдых</span>
-        <a href="{% url 'about' %}">О EVRZ Hotel</a>
-      </div>
-    </footer>
-  </body>
-</html>
+{% block title %}О гостинице{% endblock %}
+
+{% block content %}
+  <div class="form-page">
+    <p class="eyebrow">О ГОСТИНИЦЕ</p>
+    <h1>ОТЕЛЬ ВОЛГА</h1>
+    <p class="muted">Современная гостиница на 35 номеров с прямым онлайн-бронированием без комиссий посредников.</p>
+
+    <section class="panel">
+      <h2>Прозрачные условия бронирования</h2>
+      <p>Выберите даты заезда и выезда в каталоге, чтобы увидеть только свободные номера. Стоимость рассчитывается на сервере по каждой ночи отдельно с учётом действующих сезонных тарифов.</p>
+      <ul>
+        <li>5 этажей, 10 категорий номеров — от уютного Эконома до Представительских апартаментов.</li>
+        <li>Гарантия отсутствия двойных броней благодаря транзакционной проверке дат.</li>
+        <li>Мгновенный печатный ваучер и удобное управление поездкой в личном кабинете.</li>
+      </ul>
+      <a class="button" href="{% url 'room_list' %}">Перейти в каталог номеров</a>
+    </section>
+  </div>
+{% endblock %}

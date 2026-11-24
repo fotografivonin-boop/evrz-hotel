@@ -1,0 +1,69 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ОТЕЛЬ ВОЛГА — онлайн-бронирование номеров гостиницы, актуальные сезонные тарифы и личный кабинет гостя.">
+    <title>{% block title %}ОТЕЛЬ ВОЛГА{% endblock %} | ОТЕЛЬ ВОЛГА</title>
+    <link rel="icon" href="{% static 'images/volga-icon.png' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=10">
+    <script src="{% static 'js/app.js' %}?v=10" defer></script>
+  </head>
+  <body>
+    <header class="header-site">
+      <div class="wrap under_header">
+        <a class="logo" href="{% url 'room_list' %}">
+          <img class="logo-icon" src="{% static 'images/volga-icon.png' %}" alt="" width="32" height="32">
+          <span>ОТЕЛЬ ВОЛГА</span>
+        </a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">
+          <span aria-hidden="true">☰</span> <span>Меню</span>
+        </button>
+        <nav id="navigation" class="nav-links" aria-label="Основная навигация">
+          <a href="{% url 'room_list' %}">Каталог номеров</a>
+          <a href="{% url 'about' %}">О гостинице</a>
+          {% if user.is_authenticated %}
+            <a href="{% url 'my_bookings' %}">Мои брони</a>
+            {% if user.is_staff %}
+              <a href="{% url 'staff_bookings' %}">Стойка</a>
+              <a href="{% url 'cleaning' %}">Уборка</a>
+            {% endif %}
+            {% if user.is_superuser %}
+              <a href="{% url 'stats' %}">Статистика</a>
+              <a href="{% url 'manager_tariffs' %}">Тарифы</a>
+            {% endif %}
+            <span class="nav-user">{{ user.username }}</span>
+            <form class="nav-logout" method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button class="nav-button" type="submit">Выйти</button>
+            </form>
+          {% else %}
+            <a href="{% url 'login' %}">Войти</a>
+            <a class="nav-outline" href="{% url 'register' %}">Регистрация</a>
+          {% endif %}
+        </nav>
+      </div>
+    </header>
+
+    <main class="wrap main">
+      {% if messages %}
+        <div class="messages-stack" role="status" aria-live="polite">
+          {% for message in messages %}
+            <div class="notice {% if message.tags %}notice-{{ message.tags }}{% endif %}">{{ message }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+      <div class="wrap footer-inner">
+        <span class="logo footer-logo">ОТЕЛЬ ВОЛГА</span>
+        <span>Прямое онлайн-бронирование номеров без посредников</span>
+        <a href="{% url 'about' %}">О гостинице</a>
+      </div>
+    </footer>
+  </body>
+</html>
