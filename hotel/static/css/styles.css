@@ -748,6 +748,14 @@ footer {
 }
 
 @media(max-width:768px) {
+  .filter-list form {
+    display: none;
+  }
+
+  .filter-list form.open {
+    display: block;
+  }
+
   .wrap {
     padding-left: 16px;
     padding-right: 16px;

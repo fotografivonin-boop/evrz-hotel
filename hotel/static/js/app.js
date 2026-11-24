@@ -5,12 +5,19 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (filterButton && filterForm) {
         if (window.matchMedia('(max-width: 768px)').matches) {
-            filterForm.hidden = true;
             filterButton.setAttribute('aria-expanded', 'false');
+        } else {
+            filterForm.classList.add('open');
         }
         filterButton.addEventListener('click', function () {
-            filterForm.hidden = !filterForm.hidden;
-            filterButton.setAttribute('aria-expanded', String(!filterForm.hidden));
+            const isMobile = window.matchMedia('(max-width: 768px)').matches;
+            if (isMobile) {
+                const nowOpen = filterForm.classList.toggle('open');
+                filterButton.setAttribute('aria-expanded', String(nowOpen));
+            } else {
+                filterForm.hidden = !filterForm.hidden;
+                filterButton.setAttribute('aria-expanded', String(!filterForm.hidden));
+            }
         });
     }
 
