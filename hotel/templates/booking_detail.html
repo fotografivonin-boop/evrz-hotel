@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Бронь №{{ booking.pk }}{% endblock %}
+
+{% block content %}
+  <p class="breadcrumbs">
+    <a href="{% url 'my_bookings' %}">Мои бронирования</a> / Бронь №{{ booking.pk }}
+  </p>
+
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">КАРТОЧКА БРОНИРОВАНИЯ</p>
+      <h1>Бронь №{{ booking.pk }} — Номер {{ booking.room.room_number }}</h1>
+      <p class="muted num">{{ booking.check_in_date|date:'d.m.Y' }} — {{ booking.check_out_date|date:'d.m.Y' }} · {{ booking.nights_count }} ноч. · {{ booking.total_price|floatformat:0 }} ₽</p>
+    </div>
+    <div class="row-actions">
+      <a class="button secondary" href="{% url 'voucher' booking.pk %}">Печатный ваучер</a>
+      {% if can_cancel %}
+        <form class="inline-form" method="post" action="{% url 'cancel' booking.pk %}">
+          {% csrf_token %}
+          <button class="danger" type="submit">Отменить бронь</button>
+        </form>
+      {% endif %}
+      {% if booking.status == 'checked_out' and not has_review %}
+        <a class="button" href="{% url 'review_add' %}?booking={{ booking.pk }}">Оставить отзыв</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="detail-layout">
+    <div class="detail-main">
+      <section class="panel">
+        <h2>Проживающие гости ({{ booking.guests.count }} / {{ booking.room.room_type.max_guests }})</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>Дата рождения</th>
+                <th>Документ</th>
+                <th>Телефон</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for g in booking.guests.all %}
+                <tr>
+                  <td>{{ g.full_name }}</td>
+                  <td class="num">{{ g.birth_date|date:'d.m.Y' }}</td>
+                  <td class="num">{{ g.document_number }}</td>
+                  <td class="num">{{ g.phone|default:'—' }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="4">Гости не указаны.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        {% if booking.guests.count < booking.room.room_type.max_guests and booking.status in 'new,confirmed' %}
+          <h3>Добавить гостя</h3>
+          <form method="post" class="validated-form">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="add_guest">
+            <div class="form-grid-2">
+              <div class="form-pole">
+                <label for="id_full_name">ФИО гостя</label>
+                {{ guest_form.full_name }}
+                {{ guest_form.full_name.errors }}
+              </div>
+              <div class="form-pole">
+                <label for="id_birth_date">Дата рождения</label>
+                {{ guest_form.birth_date }}
+                {{ guest_form.birth_date.errors }}
+              </div>
+              <div class="form-pole">
+                <label for="id_document_number">Документ</label>
+                {{ guest_form.document_number }}
+                {{ guest_form.document_number.errors }}
+              </div>
+              <div class="form-pole">
+                <label for="id_phone">Телефон</label>
+                {{ guest_form.phone }}
+                {{ guest_form.phone.errors }}
+              </div>
+            </div>
+            <button type="submit" class="small secondary">Добавить гостя</button>
+          </form>
+        {% endif %}
+      </section>
+
+      <section class="panel">
+        <h2>Пожелания к бронированию</h2>
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="update_comment">
+          <div class="form-pole">
+            <label for="id_comment">Комментарий</label>
+            {{ edit_form.comment }}
+            {{ edit_form.comment.errors }}
+          </div>
+          <button type="submit" class="small">Сохранить комментарий</button>
+        </form>
+      </section>
+    </div>
+
+    <aside class="detail-aside">
+      <div class="panel">
+        <h2>Статус и оплата</h2>
+        <p><span class="badge">{{ booking.get_status_display }}</span></p>
+        <p class="num"><strong>Итого: {{ booking.total_price|floatformat:0 }} ₽</strong></p>
+        {% for pay in booking.payments.all %}
+          <p class="fine num">Чек: {{ pay.receipt_number }}<br>Способ: {{ pay.get_payment_method_display }}<br>Статус: {{ pay.get_status_display }}</p>
+        {% endfor %}
+      </div>
+    </aside>
+  </div>
+{% endblock %}

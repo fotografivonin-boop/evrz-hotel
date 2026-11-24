@@ -1,73 +1,37 @@
-{% load static %}
-<!doctype html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>
-      Ваучер | EVRZ Hotel</title>
-    <link rel="icon" href="{% static 'images/evrz-icon.png' %}" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
-    <script src="{% static 'js/app.js' %}?v=2" defer>
-    </script>
-  </head>
-  <body>
-    <header class="header-site">
-      <div class="wrap under_header">
-        <a class="logo" href="{% url 'catalog' %}">
-          <img class="logo-icon" src="{% static 'images/evrz-icon.png' %}" alt="" width="32" height="32"> EVRZ Hotel</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">☰ <span>Меню</span>
-        </button>
-        <div id="navigation" class="gap">
-          <a href="{% url 'catalog' %}">Каталог номеров</a>
-          <a href="{% url 'about' %}">О EVRZ Hotel</a>
-          <a class="auth-{{ user.is_authenticated }}" href="{% url 'my_bookings' %}">Мои брони</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'staff_bookings' %}">Стойка</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'stats' %}">Статистика</a>
-          <a class="guest-{{ user.is_authenticated }}" href="{% url 'login' %}">Войти</a>
-          <a class="nav-outline guest-{{ user.is_authenticated }}" href="{% url 'register' %}">Регистрация</a>
-          <form class="logout-{{ user.is_authenticated }}" method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="nav-button">Выйти</button>
-          </form>
-        </div>
-      </div>
-    </header>
-    <div class="wrap main" role="main">
-      {% for message in messages %}
-          <div class="notice">{{ message }}</div>
-        {% endfor %}
-      
-  <div class="voucher panel">
-    <p class="eyebrow">ПОДТВЕРЖДЕНИЕ БРОНИРОВАНИЯ</p>
-    <h1>Ваучер № {{ booking.pk }}</h1>
-    <p>Сохраните эту страницу для предъявления при заселении.</p>
+{% extends 'base.html' %}
+
+{% block title %}Ваучер №{{ booking.pk }}{% endblock %}
+
+{% block content %}
+  <section class="voucher panel">
+    <p class="eyebrow">ОТЕЛЬ ВОЛГА · ПОДТВЕРЖДЕНИЕ БРОНИРОВАНИЯ</p>
+    <h1>Ваучер на заселение №{{ booking.pk }}</h1>
+    <p class="muted">Предъявите этот талон в печатном или электронном виде на стойке регистрации.</p>
+
     <dl>
-      <dt>Номер</dt>
-      <dd>{{ booking.room.room_number }} · {{ booking.room.room_type.name }}</dd>
-      <dt>Гость</dt>
+      <dt>Гостиница</dt>
+      <dd>ОТЕЛЬ ВОЛГА</dd>
+      <dt>Номер и категория</dt>
+      <dd>Номер {{ booking.room.room_number }} · {{ booking.room.room_type.name }} ({{ booking.room.floor }} этаж)</dd>
+      <dt>Клиент / контакт</dt>
       <dd>{{ booking.contact_name|default:booking.user.username }}</dd>
-      <dt>Заезд</dt>
-      <dd>{{ booking.check_in_date|date:'d.m.Y' }}</dd>
-      <dt>Выезд</dt>
-      <dd>{{ booking.check_out_date|date:'d.m.Y' }}</dd>
+      <dt>Проживающие гости</dt>
+      <dd>{% for g in booking.guests.all %}{{ g.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ booking.user.username }}{% endfor %}</dd>
+      <dt>Дата заезда</dt>
+      <dd class="num">{{ booking.check_in_date|date:'d.m.Y' }} (после 14:00)</dd>
+      <dt>Дата выезда</dt>
+      <dd class="num">{{ booking.check_out_date|date:'d.m.Y' }} (до 12:00)</dd>
+      <dt>Количество ночей</dt>
+      <dd class="num">{{ booking.nights_count }}</dd>
       <dt>Статус</dt>
       <dd>{{ booking.get_status_display }}</dd>
-      <dt>Итого</dt>
-      <dd>
-        <strong>{{ booking.total_price|floatformat:0 }} ₽</strong>
-      </dd>
+      <dt>Итоговая стоимость</dt>
+      <dd class="num"><strong>{{ booking.total_price|floatformat:0 }} ₽</strong></dd>
     </dl>
-    <button type="button" onclick="window.print()">Распечатать</button> <a href="{% url 'my_bookings' %}">Мои бронирования</a>
-  </div>
 
+    <div class="row-actions no-print">
+      <button type="button" onclick="window.print()">Распечатать ваучер</button>
+      <a class="button secondary" href="{% url 'my_bookings' %}">Мои бронирования</a>
     </div>
-    <footer>
-      <div class="wrap footer-inner">
-        <span class="logo">EVRZ Hotel</span>
-        <span>Удобное бронирование и комфортный отдых</span>
-        <a href="{% url 'about' %}">О EVRZ Hotel</a>
-      </div>
-    </footer>
-  </body>
-</html>
+  </section>
+{% endblock %}
