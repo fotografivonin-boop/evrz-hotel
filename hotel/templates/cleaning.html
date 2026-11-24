@@ -1,90 +1,81 @@
-{% load static %}
-<!doctype html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>
-      Уборка | EVRZ Hotel</title>
-    <link rel="icon" href="{% static 'images/evrz-icon.png' %}" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
-    <script src="{% static 'js/app.js' %}?v=2" defer>
-    </script>
-  </head>
-  <body>
-    <header class="header-site">
-      <div class="wrap under_header">
-        <a class="logo" href="{% url 'catalog' %}">
-          <img class="logo-icon" src="{% static 'images/evrz-icon.png' %}" alt="" width="32" height="32"> EVRZ Hotel</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">☰ <span>Меню</span>
-        </button>
-        <div id="navigation" class="gap">
-          <a href="{% url 'catalog' %}">Каталог номеров</a>
-          <a href="{% url 'about' %}">О EVRZ Hotel</a>
-          <a class="auth-{{ user.is_authenticated }}" href="{% url 'my_bookings' %}">Мои брони</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'staff_bookings' %}">Стойка</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'stats' %}">Статистика</a>
-          <a class="guest-{{ user.is_authenticated }}" href="{% url 'login' %}">Войти</a>
-          <a class="nav-outline guest-{{ user.is_authenticated }}" href="{% url 'register' %}">Регистрация</a>
-          <form class="logout-{{ user.is_authenticated }}" method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="nav-button">Выйти</button>
-          </form>
-        </div>
-      </div>
-    </header>
-    <div class="wrap main" role="main">
-      {% for message in messages %}
-          <div class="notice">{{ message }}</div>
-        {% endfor %}
-      
-  <p class="breadcrumbs">
-    <a href="{% url 'staff_bookings' %}">Панель стойки</a> / Уборка</p>
-  <h1>График уборок</h1>
+{% extends 'base.html' %}
+
+{% block title %}График уборок{% endblock %}
+
+{% block content %}
+  <p class="breadcrumbs"><a href="{% url 'staff_bookings' %}">Панель стойки</a> / График уборок</p>
+  <h1>График уборок номеров</h1>
+
   <div class="panel table-wrap">
     <table>
       <thead>
         <tr>
           <th>Номер</th>
-          <th>Дата</th>
-          <th>Тип</th>
+          <th>Дата и время</th>
+          <th>Тип уборки</th>
           <th>Сотрудник</th>
           <th>Статус</th>
+          <th>Обновить</th>
         </tr>
       </thead>
       <tbody>
         {% for item in page_obj %}
           <tr>
-            <td>{{ item.room.room_number }}</td>
-            <td>{{ item.scheduled_date|date:'d.m.Y H:i' }}</td>
+            <td class="num"><strong>{{ item.room.room_number }}</strong></td>
+            <td class="num">{{ item.scheduled_date|date:'d.m.Y H:i' }}</td>
             <td>{{ item.get_cleaning_type_display }}</td>
             <td>{{ item.assigned_staff }}</td>
-            <td>{{ item.get_status_display }}</td>
+            <td>
+              <span class="badge {% if item.status == 'completed' %}badge-success{% elif item.status == 'in_progress' %}badge-warning{% endif %}">
+                {{ item.get_status_display }}
+              </span>
+            </td>
+            <td>
+              <form class="inline-form" method="post" action="{% url 'cleaning' %}">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="update_status">
+                <input type="hidden" name="cleaning_id" value="{{ item.pk }}">
+                <select name="status" aria-label="Статус уборки {{ item.room.room_number }}" style="min-width: 150px; margin-right: 6px;">
+                  {% for val, label in status_choices %}
+                    <option value="{{ val }}" {% if item.status == val %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+                <button class="small secondary" type="submit">Ок</button>
+              </form>
+            </td>
           </tr>
-        {% endfor %}
-        {% for empty in no_cleanings %}
-          <tr>
-            <td colspan="5">Уборки не назначены.</td>
-          </tr>
+        {% empty %}
+          <tr><td colspan="6">Задачи на уборку не назначены.</td></tr>
         {% endfor %}
       </tbody>
     </table>
-    {% for links in page_navigation %}
-  <div class="pagination" role="navigation" aria-label="Страницы">
-    {% for address in links.previous %}<a href="{{ address }}">← Назад</a>{% endfor %}
-    <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
-    {% for address in links.next %}<a href="{{ address }}">Далее →</a>{% endfor %}
-  </div>
-{% endfor %}
+
+    {% if pagination %}
+      <nav class="pagination" aria-label="Страницы уборок">
+        {% if pagination.previous_url %}<a href="{{ pagination.previous_url }}">← Назад</a>{% endif %}
+        {% for p in pagination.pages %}
+          {% if p.current %}<span class="page-current">{{ p.num }}</span>{% else %}<a href="{{ p.url }}">{{ p.num }}</a>{% endif %}
+        {% endfor %}
+        {% if pagination.next_url %}<a href="{{ pagination.next_url }}">Далее →</a>{% endif %}
+      </nav>
+    {% endif %}
   </div>
 
-    </div>
-    <footer>
-      <div class="wrap footer-inner">
-        <span class="logo">EVRZ Hotel</span>
-        <span>Удобное бронирование и комфортный отдых</span>
-        <a href="{% url 'about' %}">О EVRZ Hotel</a>
+  <section class="panel">
+    <h2>Назначить уборку</h2>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="create">
+      <div class="form-grid-2">
+        {% for field in form %}
+          <div class="form-pole">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+          </div>
+        {% endfor %}
       </div>
-    </footer>
-  </body>
-</html>
+      <button type="submit">Добавить уборку</button>
+    </form>
+  </section>
+{% endblock %}

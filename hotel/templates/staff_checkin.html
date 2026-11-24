@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Заселение и оплата{% endblock %}
+
+{% block content %}
+  <p class="breadcrumbs"><a href="{% url 'staff_bookings' %}">Панель стойки</a> / Заселение и оплата</p>
+  <h1>Заезды: отметка оплаты и заселение</h1>
+
+  <div class="panel table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Бронь</th>
+          <th>Номер</th>
+          <th>Гость</th>
+          <th>Заезд — Выезд</th>
+          <th>Статус</th>
+          <th>Сумма</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for b in arrivals %}
+          <tr>
+            <td class="num"><a href="{% url 'voucher' b.pk %}">№ {{ b.pk }}</a></td>
+            <td class="num">{{ b.room.room_number }}</td>
+            <td>{{ b.contact_name|default:b.user.username }}</td>
+            <td class="num">{{ b.check_in_date|date:'d.m.Y' }} — {{ b.check_out_date|date:'d.m.Y' }}</td>
+            <td>{{ b.get_status_display }}</td>
+            <td class="num">{{ b.total_price|floatformat:0 }} ₽</td>
+            <td>
+              <div class="row-actions">
+                <form class="inline-form" method="post" action="{% url 'staff_checkin' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="booking_id" value="{{ b.pk }}">
+                  <input type="hidden" name="action" value="mark_paid">
+                  <button class="small secondary" type="submit">Отметить оплату</button>
+                </form>
+                <form class="inline-form" method="post" action="{% url 'staff_checkin' %}">
+                  {% csrf_token %}
+                  <input type="hidden" name="booking_id" value="{{ b.pk }}">
+                  <input type="hidden" name="action" value="checkin">
+                  <button class="small" type="submit">Заселить</button>
+                </form>
+              </div>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7">Ожидающих заселения броней нет.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+{% endblock %}
