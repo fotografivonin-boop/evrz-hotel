@@ -3,8 +3,10 @@ __pycache__/
 *.sqlite3-journal
 .venv/
 venv/
+.env
 logs/
 media/
 report_screenshots/
+staticfiles/
 .DS_Store
 Thumbs.db
