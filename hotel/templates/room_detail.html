@@ -1,0 +1,102 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+      Номер {{ room.room_number }} | EVRZ Hotel</title>
+    <link rel="icon" href="{% static 'images/evrz-icon.png' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
+    <script src="{% static 'js/app.js' %}?v=2" defer>
+    </script>
+  </head>
+  <body>
+    <header class="header-site">
+      <div class="wrap under_header">
+        <a class="logo" href="{% url 'catalog' %}">
+          <img class="logo-icon" src="{% static 'images/evrz-icon.png' %}" alt="" width="32" height="32"> EVRZ Hotel</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">☰ <span>Меню</span>
+        </button>
+        <div id="navigation" class="gap">
+          <a href="{% url 'catalog' %}">Каталог номеров</a>
+          <a href="{% url 'about' %}">О EVRZ Hotel</a>
+          <a class="auth-{{ user.is_authenticated }}" href="{% url 'my_bookings' %}">Мои брони</a>
+          <a class="staff-{{ user.is_staff }}" href="{% url 'staff_bookings' %}">Стойка</a>
+          <a class="staff-{{ user.is_staff }}" href="{% url 'stats' %}">Статистика</a>
+          <a class="guest-{{ user.is_authenticated }}" href="{% url 'login' %}">Войти</a>
+          <a class="nav-outline guest-{{ user.is_authenticated }}" href="{% url 'register' %}">Регистрация</a>
+          <form class="logout-{{ user.is_authenticated }}" method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="nav-button">Выйти</button>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="wrap main" role="main">
+      {% for message in messages %}
+          <div class="notice">{{ message }}</div>
+        {% endfor %}
+      
+  <p class="breadcrumbs">
+    <a href="{% url 'catalog' %}">Каталог</a> / Номер {{ room.room_number }}</p>
+  <div class="Header-First">
+    <div>
+      <p class="eyebrow">{{ room.room_type.name }}</p>
+      <h1>Номер {{ room.room_number }}</h1>
+      <p class="muted">{{ room.floor }} этаж · до {{ room.room_type.max_guests }} гостей · {{ room.room_type.area|floatformat:0 }} м²</p>
+    </div>
+  </div>
+  <div class="detail-layout">
+    <div>
+      <div class="detail-photo">
+        <img src="{{ room.photo_url }}" width="900" height="480" alt="Интерьер номера {{ room.room_number }}">
+      </div>
+      <p class="photo-note">{{ room.photo_detail_note }}</p>
+      <div class="panel">
+        <h2>О номере</h2>
+        <p>{{ room.description|default:room.room_type.description|default:'Описание номера пока не добавлено.' }}</p>
+        <h2>Удобства</h2>
+        <div class="amenities">
+          {% for amenity in room.amenities.all %}
+            <span>✓ {{ amenity.name }}</span>
+          {% endfor %}
+          {% for empty in no_amenities %}
+            <span>Информация об удобствах пока не добавлена.</span>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="panel">
+        <h2>Отзывы гостей</h2>
+        {% for review in room.reviews.all %}
+          <div class="review">
+            <strong>{{ review.user.username }}</strong> <span class="rating">★ {{ review.rating }}/5</span>
+            <p>{{ review.text }}</p>
+            <small>{{ review.created_at|date:'d.m.Y' }}</small>
+          </div>
+        {% endfor %}
+          {% for empty in no_reviews %}
+          <p class="muted">Отзывов пока нет.</p>
+        {% endfor %}
+      </div>
+    </div>
+    <div>
+      <div class="panel booking-aside">
+        <span class="muted">Стоимость за ночь</span>
+        <p class="price">{{ room.room_type.base_price|floatformat:0 }} ₽</p>
+        <p class="muted">Итоговая стоимость зависит от дат и сезонного тарифа.</p>
+        <a class="button full" href="{% url 'book' room.pk %}">Забронировать</a>
+      </div>
+    </div>
+  </div>
+
+    </div>
+    <footer>
+      <div class="wrap footer-inner">
+        <span class="logo">EVRZ Hotel</span>
+        <span>Удобное бронирование и комфортный отдых</span>
+        <a href="{% url 'about' %}">О EVRZ Hotel</a>
+      </div>
+    </footer>
+  </body>
+</html>

@@ -1,0 +1,78 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+      Вход | EVRZ Hotel</title>
+    <link rel="icon" href="{% static 'images/evrz-icon.png' %}" type="image/png">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
+    <script src="{% static 'js/app.js' %}?v=2" defer>
+    </script>
+  </head>
+  <body>
+    <header class="header-site">
+      <div class="wrap under_header">
+        <a class="logo" href="{% url 'catalog' %}">
+          <img class="logo-icon" src="{% static 'images/evrz-icon.png' %}" alt="" width="32" height="32"> EVRZ Hotel</a>
+        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">☰ <span>Меню</span>
+        </button>
+        <div id="navigation" class="gap">
+          <a href="{% url 'catalog' %}">Каталог номеров</a>
+          <a href="{% url 'about' %}">О EVRZ Hotel</a>
+          <a class="auth-{{ user.is_authenticated }}" href="{% url 'my_bookings' %}">Мои брони</a>
+          <a class="staff-{{ user.is_staff }}" href="{% url 'staff_bookings' %}">Стойка</a>
+          <a class="staff-{{ user.is_staff }}" href="{% url 'stats' %}">Статистика</a>
+          <a class="guest-{{ user.is_authenticated }}" href="{% url 'login' %}">Войти</a>
+          <a class="nav-outline guest-{{ user.is_authenticated }}" href="{% url 'register' %}">Регистрация</a>
+          <form class="logout-{{ user.is_authenticated }}" method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="nav-button">Выйти</button>
+          </form>
+        </div>
+      </div>
+    </header>
+    <div class="wrap main" role="main">
+      {% for message in messages %}
+          <div class="notice">{{ message }}</div>
+        {% endfor %}
+      
+  <div class="form-page">
+    <div class="panel">
+      <p class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</p>
+      <h1>Вход в аккаунт</h1>
+      <p class="muted">Рады видеть вас снова</p>
+      <form method="post">
+        {% csrf_token %}
+        
+          <div class="error-list" role="alert">{{ form.non_field_errors }}</div>
+        
+        <div class="form-pole">
+          <label for="id_username">Имя пользователя <span class="required">*</span></label>
+          <input type="text" name="username" id="id_username" value="{{ form.username.value|default_if_none:'' }}" maxlength="150" autocomplete="username" required>
+          {% for error in form.username.errors %}<span class="error" role="alert">{{ error }}</span>{% endfor %}
+        </div>
+        <div class="form-pole">
+          <label for="id_password">Пароль <span class="required">*</span></label>
+          <input type="password" name="password" id="id_password" autocomplete="current-password" required>
+          {% for error in form.password.errors %}<span class="error" role="alert">{{ error }}</span>{% endfor %}
+        </div>
+        <input type="hidden" name="next" value="{{ next }}">
+        <button class="full">Войти</button>
+      </form>
+      <p>Нет аккаунта? <a href="{% url 'register' %}">Зарегистрироваться</a>
+      </p>
+    </div>
+  </div>
+
+    </div>
+    <footer>
+      <div class="wrap footer-inner">
+        <span class="logo">EVRZ Hotel</span>
+        <span>Удобное бронирование и комфортный отдых</span>
+        <a href="{% url 'about' %}">О EVRZ Hotel</a>
+      </div>
+    </footer>
+  </body>
+</html>

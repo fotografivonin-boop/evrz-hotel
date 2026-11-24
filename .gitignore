@@ -1,0 +1,10 @@
+__pycache__/
+*.py[cod]
+*.sqlite3-journal
+.venv/
+venv/
+logs/
+media/
+report_screenshots/
+.DS_Store
+Thumbs.db
