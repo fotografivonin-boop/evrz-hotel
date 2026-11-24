@@ -278,10 +278,10 @@ class Command(BaseCommand):
                     phone=f'+7916100{i:04d}',
                 )
                 # Доп. гости (еще 4 гостя = 36 всего)
-                if i < 4 and room.room_type.max_guests >= 2:
+                if 1 <= i <= 4 and room.room_type.max_guests >= 2:
                     BookingGuest.objects.create(
                         booking=booking,
-                        full_name=f'Сопровождающий Гость {i + 1}',
+                        full_name=f'Сопровождающий Гость {i}',
                         birth_date=date(1992 + i, 5, 14),
                         document_number=f'45 20 {200000 + i}',
                         phone=f'+7916200{i:04d}',
