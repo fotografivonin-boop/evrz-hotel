@@ -436,11 +436,11 @@ def book(request, pk):
                         amount=booking.total_price,
                         payment_method=form.cleaned_data['payment_method'],
                         status='pending',
-                        receipt_number=f'VOLGA-{booking.pk}-{timezone.now():%Y%m%d%H%M%S}',
+                        receipt_number=f'EVRZ-{booking.pk}-{timezone.now():%Y%m%d%H%M%S}',
                     )
 
                     send_booking_email(
-                        subject=f'ОТЕЛЬ ВОЛГА: подтверждение бронирования №{booking.pk}',
+                        subject=f'EVRZ Hotel: подтверждение бронирования №{booking.pk}',
                         message=(
                             f'Здравствуйте, {booking.contact_name}!\n'
                             f'Вы оформили бронь №{booking.pk} на номер {room.room_number} ({room.room_type.name}).\n'
@@ -561,7 +561,7 @@ def cancel(request, pk):
             booking.save(update_fields=['status'])
             booking.payments.filter(status='paid').update(status='refunded')
         send_booking_email(
-            subject=f'ОТЕЛЬ ВОЛГА: отмена бронирования №{booking.pk}',
+            subject=f'EVRZ Hotel: отмена бронирования №{booking.pk}',
             message=f'Ваша бронь №{booking.pk} на номер {booking.room.room_number} отменена.',
             recipient_email=booking.contact_email or request.user.email,
         )
@@ -726,7 +726,7 @@ def staff_checkin(request):
                 booking.status = 'checked_in'
                 booking.save(update_fields=['status'])
                 send_booking_email(
-                    subject=f'ОТЕЛЬ ВОЛГА: заселение по брони №{booking.pk}',
+                    subject=f'EVRZ Hotel: заселение по брони №{booking.pk}',
                     message=f'Добро пожаловать! Статус вашей брони №{booking.pk} изменён на «Заселён».',
                     recipient_email=booking.contact_email or booking.user.email,
                 )
@@ -749,9 +749,9 @@ def staff_checkout(request, pk):
                 booking.save(update_fields=['status'])
                 create_checkout_cleaning(booking)
             send_booking_email(
-                subject=f'ОТЕЛЬ ВОЛГА: завершение проживания №{booking.pk}',
+                subject=f'EVRZ Hotel: завершение проживания №{booking.pk}',
                 message=(
-                    f'Спасибо, что выбрали «ОТЕЛЬ ВОЛГА»! '
+                    f'Спасибо, что выбрали EVRZ Hotel! '
                     f'Теперь вы можете оставить отзыв о номере {booking.room.room_number} в личном кабинете.'
                 ),
                 recipient_email=booking.contact_email or booking.user.email,
@@ -895,7 +895,7 @@ def export_csv(request):
     )
 
     response = HttpResponse(content_type='text/csv; charset=utf-8')
-    filename = f'hotel_volga_report_{month_str or "all"}.csv'
+    filename = f'evrz_hotel_report_{month_str or "all"}.csv'
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     response.write('\ufeff')  # UTF-8 BOM для корректного открытия в Excel
 

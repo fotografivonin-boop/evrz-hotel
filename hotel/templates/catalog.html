@@ -3,18 +3,18 @@
 {% block title %}{{ page_title }}{% endblock %}
 
 {% block content %}
-  <div class="page-head">
+  <div class="Header-First">
     <div>
-      <p class="eyebrow">ПРЯМОЕ БРОНИРОВАНИЕ БЕЗ ПОСРЕДНИКОВ</p>
+      <p class="eyebrow">ВАШ КОМФОРТ НАЧИНАЕТСЯ ЗДЕСЬ</p>
       <h1>{{ page_title }}</h1>
-      <p class="muted">Выберите свободные даты, категорию и удобства для вашей поездки</p>
+      <p class="muted">Выберите номер для вашего путешествия</p>
     </div>
-    <span class="count num">Найдено: {{ page_obj.paginator.count }}</span>
+    <span class="count">Найдено: {{ page_obj.paginator.count }}</span>
   </div>
 
-  <form method="get" action="{% url 'room_list' %}" class="search-form" role="search">
-    <label class="sr-only" for="search">Поиск по номеру или описанию</label>
-    <input id="search" type="search" name="q" value="{{ query }}" placeholder="Поиск по номеру комнаты, категории или описанию...">
+  <form method="get" action="{% url 'room_list' %}" class="search-form">
+    <label class="sr-only" for="search">Поиск по номерам</label>
+    <input id="search" type="search" name="q" value="{{ query }}" placeholder="Поиск по номеру или категории">
     {% if check_in_val %}<input type="hidden" name="check_in" value="{{ check_in_val }}">{% endif %}
     {% if check_out_val %}<input type="hidden" name="check_out" value="{{ check_out_val }}">{% endif %}
     {% if selected_type %}<input type="hidden" name="room_type" value="{{ selected_type }}">{% endif %}
@@ -29,54 +29,30 @@
   {% endif %}
 
   <div class="catalog-block">
-    <aside class="filter" aria-label="Фильтры каталога">
+    <div class="filter">
       <div class="filter-list">
-        <button type="button" class="filter-toggle" aria-expanded="true" aria-controls="catalog-filters">
-          <span>Параметры поиска</span>
-          <span aria-hidden="true">▾</span>
-        </button>
+        <button type="button" class="filter-toggle" aria-expanded="true" aria-controls="catalog-filters">Фильтры <span>⌄</span></button>
         <form id="catalog-filters" method="get" action="{% url 'room_list' %}">
           {% if query %}<input type="hidden" name="q" value="{{ query }}">{% endif %}
-
-          <div class="filter-group">
-            <label for="f-check-in">Дата заезда</label>
-            <input id="f-check-in" type="date" name="check_in" value="{{ check_in_val }}">
-          </div>
-
-          <div class="filter-group">
-            <label for="f-check-out">Дата выезда</label>
-            <input id="f-check-out" type="date" name="check_out" value="{{ check_out_val }}">
-          </div>
-
-          <div class="filter-group">
-            <label for="f-type">Тип номера</label>
-            <select id="f-type" name="room_type">
-              <option value="">Все категории</option>
-              {% for t in types %}
-                <option value="{{ t.pk }}" {% if selected_type == t.pk|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div class="filter-group">
-            <label for="f-price">Макс. цена за ночь, ₽</label>
-            <input id="f-price" type="number" name="max_price" min="0" step="100" value="{{ max_price }}" placeholder="Любая цена">
-          </div>
-
-          <div class="filter-group">
-            <label for="f-sort">Сортировка</label>
-            <select id="f-sort" name="sort">
-              <option value="">По номеру (умолч.)</option>
-              <option value="price" {% if sort == 'price' %}selected{% endif %}>Цена: сначала дешевле</option>
-              <option value="-price" {% if sort == '-price' %}selected{% endif %}>Цена: сначала дороже</option>
-              <option value="guests" {% if sort == 'guests' %}selected{% endif %}>Вместимость: по возрастанию</option>
-              <option value="-guests" {% if sort == '-guests' %}selected{% endif %}>Вместимость: по убыванию</option>
-              <option value="floor" {% if sort == 'floor' %}selected{% endif %}>Этаж: по возрастанию</option>
-              <option value="-floor" {% if sort == '-floor' %}selected{% endif %}>Этаж: по убыванию</option>
-            </select>
-          </div>
-
-          <fieldset class="amenities-fieldset">
+          <label>Заезд<input type="date" name="check_in" value="{{ check_in_val }}"></label>
+          <label>Выезд<input type="date" name="check_out" value="{{ check_out_val }}"></label>
+          <label>Тип номера<select name="room_type">
+            <option value="">Все категории</option>
+            {% for type in types %}
+              <option value="{{ type.pk }}" {% if selected_type == type.pk|stringformat:"s" %}selected{% endif %}>{{ type.name }}</option>
+            {% endfor %}
+          </select></label>
+          <label>Цена до, ₽<input type="number" name="max_price" min="0" value="{{ max_price }}" placeholder="Любая цена"></label>
+          <label>Сортировка<select name="sort">
+            <option value="">По номеру</option>
+            <option value="price" {% if sort == 'price' %}selected{% endif %}>Сначала дешевле</option>
+            <option value="-price" {% if sort == '-price' %}selected{% endif %}>Сначала дороже</option>
+            <option value="guests" {% if sort == 'guests' %}selected{% endif %}>По вместимости (возр.)</option>
+            <option value="-guests" {% if sort == '-guests' %}selected{% endif %}>По вместимости (убыв.)</option>
+            <option value="floor" {% if sort == 'floor' %}selected{% endif %}>По этажу (возр.)</option>
+            <option value="-floor" {% if sort == '-floor' %}selected{% endif %}>По этажу (убыв.)</option>
+          </select></label>
+          <fieldset class="filter-checkboxes">
             <legend>Удобства</legend>
             <div class="checkbox-list">
               {% for amenity in amenities_list %}
@@ -87,73 +63,56 @@
               {% endfor %}
             </div>
           </fieldset>
-
-          <button class="full" type="submit">Применить фильтры</button>
+          <button class="full" type="submit">Применить</button>
           <a class="reset" href="{% url 'room_list' %}">Сбросить фильтры</a>
         </form>
       </div>
-    </aside>
+    </div>
 
-    <section class="catalog-content" aria-label="Список номеров">
+    <div aria-label="Номера">
       <div class="section-line">
         <h2>Доступные номера</h2>
-        <span class="muted num">Показано {{ page_obj|length }} из {{ page_obj.paginator.count }}</span>
+        <span class="muted">{{ page_obj.paginator.count }} вариантов</span>
       </div>
-
-      <div class="cards-grid">
+      <div class="Cards">
         {% for room in page_obj %}
-          <article class="card">
+          <div class="card card-number">
             <a class="card-image" href="{% url 'room_detail' room.pk %}" aria-label="Подробнее о номере {{ room.room_number }}">
-              <img src="{{ room.photo_url }}" alt="Интерьер номера {{ room.room_number }} ({{ room.room_type.name }})" width="480" height="270" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
-              {% if room.current_tariff %}
-                <span class="tariff-ribbon">{{ room.current_tariff.name }}</span>
-              {% endif %}
+              <img src="{{ room.photo_url }}" alt="Интерьер номера {{ room.room_number }}" width="480" height="270" {% if forloop.first %}fetchpriority="high"{% else %}loading="lazy"{% endif %}>
             </a>
             <div class="card-text">
+              <p class="photo-note">{{ room.photo_note }}</p>
               <div class="card-title">
                 <h3>Номер {{ room.room_number }}</h3>
                 <span class="badge">{{ room.room_type.name }}</span>
               </div>
-              <p class="room-meta num">{{ room.floor }} этаж · до {{ room.room_type.max_guests }} чел. · {{ room.room_type.area|floatformat:1 }} м²</p>
-              <p class="room-amenities-mini">
-                {% for am in room.amenities.all|slice:":3" %}{{ am.name }}{% if not forloop.last %} · {% endif %}{% endfor %}
-              </p>
-              <p class="room-description">{{ room.description|default:room.room_type.description|truncatechars:85 }}</p>
+              <p class="room-meta">{{ room.floor }} этаж <span>·</span> до {{ room.room_type.max_guests }} гостей <span>·</span> {{ room.room_type.area|floatformat:0 }} м²</p>
+              <p class="muted room-description">{{ room.description|default:room.room_type.description|truncatechars:80 }}</p>
               <div class="card-bottom">
-                <div class="card-price">
+                <div>
                   <strong>{{ room.room_type.base_price|floatformat:0 }} ₽</strong>
                   <small> / ночь</small>
                 </div>
                 <a class="button small" href="{% url 'room_detail' room.pk %}">Подробнее</a>
               </div>
             </div>
-          </article>
+          </div>
         {% empty %}
           <div class="empty">
             <h3>Номера не найдены</h3>
-            <p class="muted">По заданным условиям свободных номеров нет. Попробуйте изменить даты или сбросить фильтры.</p>
+            <p>Попробуйте изменить условия поиска.</p>
             <a class="button" href="{% url 'room_list' %}">Сбросить фильтры</a>
           </div>
         {% endfor %}
       </div>
 
       {% if pagination %}
-        <nav class="pagination" aria-label="Постраничная навигация">
-          {% if pagination.previous_url %}
-            <a href="{{ pagination.previous_url }}">← Назад</a>
-          {% endif %}
-          {% for p in pagination.pages %}
-            {% if p.current %}
-              <span class="page-current" aria-current="page">{{ p.num }}</span>
-            {% else %}
-              <a href="{{ p.url }}">{{ p.num }}</a>
-            {% endif %}
-          {% endfor %}
-          {% if pagination.next_url %}
-            <a href="{{ pagination.next_url }}">Далее →</a>
-          {% endif %}
+        <nav class="pagination" aria-label="Страницы">
+          {% if pagination.previous_url %}<a href="{{ pagination.previous_url }}">← Назад</a>{% endif %}
+          <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+          {% if pagination.next_url %}<a href="{{ pagination.next_url }}">Далее →</a>{% endif %}
         </nav>
       {% endif %}
-    </section>
+    </div>
   </div>
 {% endblock %}

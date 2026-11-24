@@ -1,52 +1,49 @@
 {% extends 'base.html' %}
 
-{% block title %}Статистика управляющего{% endblock %}
+{% block title %}Статистика{% endblock %}
 
 {% block content %}
-  <div class="page-head">
+  <p class="eyebrow">УПРАВЛЕНИЕ</p>
+  <div class="Header-First">
     <div>
-      <p class="eyebrow">ПАНЕЛЬ УПРАВЛЯЮЩЕГО</p>
-      <h1>Статистика «ОТЕЛЬ ВОЛГА»</h1>
-      <p class="muted">Сводные агрегированные показатели, график выручки и экспорт отчёта в CSV</p>
+      <h1>Статистика EVRZ Hotel</h1>
+      <p class="muted intro">Основные показатели по данным базы</p>
     </div>
     <div class="row-actions">
-      <a class="button secondary" href="{% url 'manager_tariffs' %}">Сезонные тарифы</a>
-      <a class="button" href="{% url 'export_csv' %}{% if month %}?month={{ month }}{% endif %}">Скачать отчёт CSV</a>
+      <a class="button secondary" href="{% url 'manager_tariffs' %}">Тарифы</a>
+      <a class="button" href="{% url 'export_csv' %}{% if month %}?month={{ month }}{% endif %}">Скачать CSV</a>
     </div>
   </div>
-
   <form method="get" action="{% url 'stats' %}" class="search-form">
-    <label for="stats-month" class="sr-only">Месяц отчёта</label>
+    <label for="stats-month" class="sr-only">Месяц</label>
     <input id="stats-month" type="month" name="month" value="{{ month }}" style="max-width: 240px;">
-    <button type="submit">Показать период</button>
-    {% if month %}<a class="button secondary" href="{% url 'stats' %}">За всё время</a>{% endif %}
+    <button type="submit">Показать</button>
+    {% if month %}<a class="button secondary" href="{% url 'stats' %}">Все время</a>{% endif %}
   </form>
-
-  <section class="stats-grid" aria-label="Ключевые показатели">
+  <div class="stats-grid">
     <div class="panel">
       <span>Всего бронирований</span>
       <strong>{{ booking_count }}</strong>
     </div>
     <div class="panel">
-      <span>Оплаченная выручка</span>
+      <span>Оплачено</span>
       <strong>{{ revenue|floatformat:0 }} ₽</strong>
     </div>
     <div class="panel">
-      <span>Средний чек брони</span>
+      <span>Средний чек</span>
       <strong>{{ avg_check|floatformat:0 }} ₽</strong>
     </div>
     <div class="panel">
-      <span>Средняя оценка / Загрузка</span>
+      <span>Оценка / Загрузка</span>
       <strong>{{ avg_rating }} ★ · {{ occupancy_pct }}%</strong>
     </div>
-  </section>
-
-  <section class="panel">
+  </div>
+  <div class="panel">
     <h2>Выручка по категориям номеров</h2>
     {% if chart_bars %}
       <div class="chart-wrap">
-        <svg class="revenue-svg" viewBox="0 0 680 230" role="img" aria-label="Столбчатый график выручки по категориям номеров">
-          <line x1="20" y1="180" x2="660" y2="180" stroke="#CBD5E1" stroke-width="1" />
+        <svg class="revenue-svg" viewBox="0 0 680 230" role="img" aria-label="График выручки по категориям номеров">
+          <line x1="20" y1="180" x2="660" y2="180" stroke="#dce3ed" stroke-width="1" />
           {% for bar in chart_bars %}
             <rect x="{{ bar.x }}" y="{{ bar.y }}" width="64" height="{{ bar.height }}" rx="4" fill="#3B82F6" />
             <text x="{{ bar.x|add:32 }}" y="{{ bar.y|add:-6 }}" text-anchor="middle" font-size="11" font-family="Roboto, Arial, sans-serif" font-weight="700" fill="#1E3A8A">{{ bar.value }} ₽</text>
@@ -55,17 +52,16 @@
         </svg>
       </div>
     {% else %}
-      <p class="muted">За выбранный период данных для построения графика нет.</p>
+      <p class="muted">Нет данных за выбранный период.</p>
     {% endif %}
-  </section>
-
-  <section class="panel">
-    <h2>Управление гостиницей</h2>
-    <p class="muted">Активных номеров в фонде: <strong class="num">{{ room_count }}</strong> · Активных броней: <strong class="num">{{ active_count }}</strong>.</p>
+  </div>
+  <div class="panel">
+    <h2>Рабочие разделы</h2>
+    <p>Активных номеров: {{ room_count }} · Активных броней: {{ active_count }}. Смотрите бронирования и график уборок или управляйте данными через панель администратора.</p>
     <div class="row-actions">
       <a class="button" href="{% url 'staff_bookings' %}">Панель стойки</a>
-      <a class="button secondary" href="{% url 'manager_tariffs' %}">Управление тарифами</a>
-      <a class="button secondary" href="{% url 'admin:index' %}">Администрирование Django</a>
+      <a class="button secondary" href="{% url 'manager_tariffs' %}">Сезонные тарифы</a>
+      <a class="button secondary" href="{% url 'admin:index' %}">Администрирование</a>
     </div>
-  </section>
+  </div>
 {% endblock %}

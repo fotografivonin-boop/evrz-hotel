@@ -1,25 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}Панель стойки регистрации{% endblock %}
+{% block title %}Панель стойки{% endblock %}
 
 {% block content %}
-  <div class="page-head">
-    <div>
-      <p class="eyebrow">АДМИНИСТРАТОР СТОЙКИ</p>
-      <h1>Панель стойки регистрации</h1>
-      <p class="muted">Контроль броней, оплат, заселения и выезда гостей</p>
-    </div>
+  <p class="eyebrow">УПРАВЛЕНИЕ</p>
+  <div class="Header-First">
+    <h1>Панель стойки</h1>
     <div class="row-actions">
-      <a class="button secondary" href="{% url 'staff_checkin' %}">Заселение и оплата</a>
+      <a class="button secondary" href="{% url 'staff_checkin' %}">Заселение</a>
       <a class="button secondary" href="{% url 'cleaning' %}">График уборок</a>
     </div>
   </div>
-
   <form method="get" action="{% url 'staff_bookings' %}" class="search-form">
     <label class="sr-only" for="staff-q">Поиск брони</label>
-    <input id="staff-q" type="search" name="q" value="{{ query }}" placeholder="Поиск по номеру комнаты, логину или ФИО гостя...">
-    <label class="sr-only" for="staff-status">Статус</label>
-    <select id="staff-status" name="status" style="max-width: 240px;">
+    <input id="staff-q" type="search" name="q" value="{{ query }}" placeholder="Поиск по номеру, логину или ФИО">
+    <select name="status" aria-label="Статус бронирования" style="max-width: 220px;">
       <option value="">Все статусы</option>
       {% for val, label in status_choices %}
         <option value="{{ val }}" {% if status_filter == val %}selected{% endif %}>{{ label }}</option>
@@ -27,7 +22,6 @@
     </select>
     <button type="submit">Найти</button>
   </form>
-
   <div class="panel table-wrap">
     <table>
       <thead>
@@ -46,10 +40,10 @@
           <tr>
             <td class="num"><a href="{% url 'voucher' booking.pk %}">№ {{ booking.pk }}</a></td>
             <td class="num">{{ booking.room.room_number }}</td>
-            <td>{{ booking.contact_name|default:booking.user.username }}</td>
+            <td>{{ booking.user.username }}</td>
             <td class="num">{{ booking.check_in_date|date:'d.m.Y' }} — {{ booking.check_out_date|date:'d.m.Y' }}</td>
-            <td><span class="badge">{{ booking.get_status_display }}</span></td>
-            <td class="num"><strong>{{ booking.total_price|floatformat:0 }} ₽</strong></td>
+            <td>{{ booking.get_status_display }}</td>
+            <td class="num">{{ booking.total_price|floatformat:0 }} ₽</td>
             <td>
               <div class="row-actions">
                 {% if booking.status == 'new' %}
@@ -58,7 +52,7 @@
                     <input type="hidden" name="booking_id" value="{{ booking.pk }}">
                     <input type="hidden" name="action" value="mark_paid">
                     <input type="hidden" name="next" value="{% url 'staff_bookings' %}">
-                    <button class="small secondary" type="submit">Оплачено</button>
+                    <button class="small secondary" type="submit">Оплата</button>
                   </form>
                 {% endif %}
                 {% if booking.status in 'new,confirmed' %}
@@ -80,19 +74,14 @@
             </td>
           </tr>
         {% empty %}
-          <tr>
-            <td colspan="7">Бронирований по заданным условиям нет.</td>
-          </tr>
+          <tr><td colspan="7">Бронирований пока нет.</td></tr>
         {% endfor %}
       </tbody>
     </table>
-
     {% if pagination %}
-      <nav class="pagination" aria-label="Страницы броней">
+      <nav class="pagination" aria-label="Страницы">
         {% if pagination.previous_url %}<a href="{{ pagination.previous_url }}">← Назад</a>{% endif %}
-        {% for p in pagination.pages %}
-          {% if p.current %}<span class="page-current">{{ p.num }}</span>{% else %}<a href="{{ p.url }}">{{ p.num }}</a>{% endif %}
-        {% endfor %}
+        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
         {% if pagination.next_url %}<a href="{{ pagination.next_url }}">Далее →</a>{% endif %}
       </nav>
     {% endif %}

@@ -1,5 +1,5 @@
 """
-Django settings for hotel project («ОТЕЛЬ ВОЛГА»).
+Django settings for hotel project (EVRZ Hotel).
 """
 
 import os
@@ -72,7 +72,7 @@ DATABASES = {
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'hotel-volga-cache',
+        'LOCATION': 'evrz-hotel-cache',
     }
 }
 
@@ -101,7 +101,7 @@ LOGIN_REDIRECT_URL = 'my_bookings'
 LOGOUT_REDIRECT_URL = 'room_list'
 
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@hotel-volga.local'
+DEFAULT_FROM_EMAIL = 'noreply@evrz-hotel.local'
 
 LOGS_DIR = BASE_DIR / 'logs'
 LOGS_DIR.mkdir(exist_ok=True)

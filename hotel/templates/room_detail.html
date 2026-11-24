@@ -4,86 +4,50 @@
 
 {% block content %}
   <p class="breadcrumbs">
-    <a href="{% url 'room_list' %}">Каталог номеров</a> / Номер {{ room.room_number }}
+    <a href="{% url 'catalog' %}">Каталог</a> / Номер {{ room.room_number }}
   </p>
-
-  <div class="page-head">
+  <div class="Header-First">
     <div>
       <p class="eyebrow">{{ room.room_type.name }}</p>
       <h1>Номер {{ room.room_number }}</h1>
-      <p class="muted num">
-        {{ room.floor }} этаж · до {{ room.room_type.max_guests }} гостей · {{ room.room_type.area|floatformat:1 }} м²
-        {% if avg_rating %} · Рейтинг: ★ {{ avg_rating|floatformat:1 }}/5{% endif %}
-      </p>
+      <p class="muted">{{ room.floor }} этаж · до {{ room.room_type.max_guests }} гостей · {{ room.room_type.area|floatformat:0 }} м²</p>
     </div>
   </div>
-
   <div class="detail-layout">
-    <div class="detail-main">
+    <div>
       <div class="detail-photo">
         <img src="{{ room.photo_url }}" width="900" height="480" alt="Интерьер номера {{ room.room_number }}">
       </div>
-
-      <section class="panel">
+      <p class="photo-note">{{ room.photo_detail_note }}</p>
+      <div class="panel">
         <h2>О номере</h2>
         <p>{{ room.description|default:room.room_type.description|default:'Описание номера пока не добавлено.' }}</p>
-
-        <h2>Удобства в номере</h2>
-        <div class="amenities-tags">
+        <h2>Удобства</h2>
+        <div class="amenities">
           {% for amenity in room.amenities.all %}
-            <span class="amenity-chip">✓ {{ amenity.name }}</span>
+            <span>✓ {{ amenity.name }}</span>
           {% empty %}
-            <p class="muted">Информация об удобствах пока не добавлена.</p>
+            <span>Информация об удобствах пока не добавлена.</span>
           {% endfor %}
         </div>
-
-        {% if active_tariffs %}
-          <h2>Сезонные тарифы категории</h2>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Сезон</th>
-                  <th>Период действия</th>
-                  <th>Цена за ночь</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for tariff in active_tariffs %}
-                  <tr>
-                    <td>{{ tariff.name }}</td>
-                    <td class="num">{{ tariff.start_date|date:'d.m.Y' }} — {{ tariff.end_date|date:'d.m.Y' }}</td>
-                    <td class="num"><strong>{{ tariff.price_per_night|floatformat:0 }} ₽</strong></td>
-                  </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        {% endif %}
-      </section>
-
-      <section class="panel">
+      </div>
+      <div class="panel">
         <div class="section-line">
           <h2>Отзывы гостей</h2>
           {% if user.is_authenticated %}
-            <a href="{% url 'review_add' %}" class="button small secondary">Написать отзыв</a>
+            <a class="button small secondary" href="{% url 'review_add' %}">Оставить отзыв</a>
           {% endif %}
         </div>
         {% for review in room.reviews.all %}
-          <article class="review">
-            <div class="section-line">
-              <div>
-                <strong>{{ review.user.username }}</strong>
-                <span class="rating">★ {{ review.rating }}/5</span>
-              </div>
-              <small class="num">{{ review.created_at|date:'d.m.Y' }}</small>
-            </div>
+          <div class="review">
+            <strong>{{ review.user.username }}</strong> <span class="rating">★ {{ review.rating }}/5</span>
             <p>{{ review.text }}</p>
             {% if review.photo %}
-              <img class="review-photo" src="{{ review.photo.url }}" alt="Фото к отзыву от {{ review.user.username }}" loading="lazy">
+              <img class="review-photo" src="{{ review.photo.url }}" alt="Фото к отзыву {{ review.user.username }}" loading="lazy">
             {% endif %}
+            <small>{{ review.created_at|date:'d.m.Y' }}</small>
             {% if user.is_authenticated and user.id == review.user_id %}
-              <div class="row-actions">
+              <div class="row-actions" style="margin-top:8px;">
                 <a class="button small secondary" href="{% url 'review_edit' review.pk %}">Редактировать</a>
                 <form class="inline-form" method="post" action="{% url 'review_delete' review.pk %}">
                   {% csrf_token %}
@@ -91,20 +55,19 @@
                 </form>
               </div>
             {% endif %}
-          </article>
+          </div>
         {% empty %}
-          <p class="muted">Отзывов о данном номере пока нет.</p>
+          <p class="muted">Отзывов пока нет.</p>
         {% endfor %}
-      </section>
-    </div>
-
-    <aside class="detail-aside">
-      <div class="panel booking-aside">
-        <span class="muted">Базовая стоимость за ночь</span>
-        <p class="price">{{ room.room_type.base_price|floatformat:0 }} ₽</p>
-        <p class="muted">Итоговая стоимость автоматически рассчитывается по каждой ночи с учётом сезонного тарифа.</p>
-        <a class="button full" href="{% url 'book' room.pk %}">Забронировать номер</a>
       </div>
-    </aside>
+    </div>
+    <div>
+      <div class="panel booking-aside">
+        <span class="muted">Стоимость за ночь</span>
+        <p class="price">{{ room.room_type.base_price|floatformat:0 }} ₽</p>
+        <p class="muted">Итоговая стоимость зависит от дат и сезонного тарифа.</p>
+        <a class="button full" href="{% url 'book' room.pk %}">Забронировать</a>
+      </div>
+    </div>
   </div>
 {% endblock %}

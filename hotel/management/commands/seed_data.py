@@ -44,7 +44,7 @@ def _generate_placeholder_images():
 
 
 class Command(BaseCommand):
-    help = 'Наполняет базу данных демонстрационными данными отеля «ОТЕЛЬ ВОЛГА»'
+    help = 'Наполняет базу данных демонстрационными данными EVRZ Hotel'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -71,8 +71,8 @@ class Command(BaseCommand):
 
         # 1. Пользователи (4 роли)
         users_spec = [
-            ('admin_manager', 'manager@hotel-volga.ru', 'ManagerPass123!', True, True, 'Андрей', 'Смирнов'),
-            ('reception_anna', 'reception@hotel-volga.ru', 'StaffPass123!', True, False, 'Анна', 'Кузнецова'),
+            ('admin_manager', 'manager@evrz-hotel.ru', 'ManagerPass123!', True, True, 'Андрей', 'Смирнов'),
+            ('reception_anna', 'reception@evrz-hotel.ru', 'StaffPass123!', True, False, 'Анна', 'Кузнецова'),
             ('ivonin_ad', 'ivonin@mail.ru', 'ClientPass123!', False, False, 'Александр', 'Ивонин'),
             ('petrov_iv', 'petrov@yandex.ru', 'ClientPass123!', False, False, 'Иван', 'Петров'),
             ('sokolova_ea', 'sokolova@mail.ru', 'ClientPass123!', False, False, 'Елена', 'Соколова'),
@@ -296,7 +296,7 @@ class Command(BaseCommand):
                     payment_method=methods[i % 3],
                     status=pay_status,
                     paid_at=timezone.now() - timedelta(days=32 - i) if pay_status == 'paid' else None,
-                    receipt_number=f'VOLGA-2026-{i + 1:04d}',
+                    receipt_number=f'EVRZ-2026-{i + 1:04d}',
                 )
 
             # 8. Уборки (15)

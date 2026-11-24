@@ -3,61 +3,51 @@
 {% block title %}Мои бронирования{% endblock %}
 
 {% block content %}
-  <div class="page-head">
+  <div class="Header-First">
     <div>
       <p class="eyebrow">ЛИЧНЫЙ КАБИНЕТ</p>
       <h1>Мои бронирования</h1>
-      <p class="muted">Просмотр, редактирование комментария, ваучеры и отмена будущих поездок</p>
+      <p class="muted">Управляйте своими поездками</p>
     </div>
-    <div class="row-actions">
-      <a class="button secondary" href="{% url 'password_change' %}">Сменить пароль</a>
-      <a class="button" href="{% url 'room_list' %}">Найти номер</a>
-    </div>
+    <a class="button" href="{% url 'catalog' %}">Найти номер</a>
   </div>
-
   <div class="panel">
     <div class="section-line">
       <h2>История бронирований</h2>
-      <span class="muted num">Всего: {{ page_obj.paginator.count }}</span>
+      <a href="{% url 'password_change' %}">Сменить пароль</a>
     </div>
-
     {% for booking in page_obj %}
-      <article class="booking-row">
+      <div class="booking-row">
         <div>
-          <span class="badge {% if booking.status == 'confirmed' or booking.status == 'checked_in' %}badge-success{% elif booking.status == 'cancelled' %}badge-error{% elif booking.status == 'new' %}badge-warning{% endif %}">
-            {{ booking.get_status_display }}
-          </span>
-          <h3>Бронь №{{ booking.pk }} · Номер {{ booking.room.room_number }} ({{ booking.room.room_type.name }})</h3>
+          <span class="badge">{{ booking.get_status_display }}</span>
+          <h3>Номер {{ booking.room.room_number }} · {{ booking.room.room_type.name }}</h3>
           <p class="num">{{ booking.check_in_date|date:'d.m.Y' }} — {{ booking.check_out_date|date:'d.m.Y' }} · {{ booking.nights_count }} ноч.</p>
           <strong class="num">{{ booking.total_price|floatformat:0 }} ₽</strong>
         </div>
         <div class="row-actions">
-          <a class="button small secondary" href="{% url 'booking_detail' booking.pk %}">Открыть</a>
-          <a class="button small secondary" href="{% url 'voucher' booking.pk %}">Ваучер</a>
+          <a class="button secondary small" href="{% url 'booking_detail' booking.pk %}">Подробнее</a>
+          <a class="button secondary small" href="{% url 'voucher' booking.pk %}">Ваучер</a>
           {% if booking.can_cancel %}
             <form class="inline-form" method="post" action="{% url 'cancel' booking.pk %}">
               {% csrf_token %}
-              <button class="small danger" type="submit">Отменить</button>
+              <button class="danger small" type="submit">Отменить</button>
             </form>
           {% endif %}
           {% if booking.can_review %}
             <a class="button small" href="{% url 'review_add' %}?booking={{ booking.pk }}">Оставить отзыв</a>
           {% endif %}
         </div>
-      </article>
+      </div>
     {% empty %}
       <div class="empty">
         <p>У вас пока нет бронирований.</p>
-        <a class="button" href="{% url 'room_list' %}">Посмотреть номера</a>
+        <a href="{% url 'catalog' %}">Посмотреть номера →</a>
       </div>
     {% endfor %}
-
     {% if pagination %}
-      <nav class="pagination" aria-label="Страницы бронирований">
+      <nav class="pagination" aria-label="Страницы">
         {% if pagination.previous_url %}<a href="{{ pagination.previous_url }}">← Назад</a>{% endif %}
-        {% for p in pagination.pages %}
-          {% if p.current %}<span class="page-current">{{ p.num }}</span>{% else %}<a href="{{ p.url }}">{{ p.num }}</a>{% endif %}
-        {% endfor %}
+        <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
         {% if pagination.next_url %}<a href="{{ pagination.next_url }}">Далее →</a>{% endif %}
       </nav>
     {% endif %}

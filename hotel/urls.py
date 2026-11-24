@@ -23,9 +23,9 @@ admin.site.register([
     Booking, BookingGuest, Payment, Cleaning, Review,
 ])
 
-admin.site.site_header = 'ОТЕЛЬ ВОЛГА — управление'
-admin.site.site_title = 'ОТЕЛЬ ВОЛГА'
-admin.site.index_title = 'Панель администрирования гостиницы'
+admin.site.site_header = 'EVRZ Hotel — управление'
+admin.site.site_title = 'EVRZ Hotel'
+admin.site.index_title = 'Управление гостиницей'
 
 urlpatterns = [
     path('admin/', admin.site.urls),

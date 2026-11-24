@@ -1,37 +1,27 @@
 {% extends 'base.html' %}
 
-{% block title %}Ваучер №{{ booking.pk }}{% endblock %}
+{% block title %}Ваучер{% endblock %}
 
 {% block content %}
-  <section class="voucher panel">
-    <p class="eyebrow">ОТЕЛЬ ВОЛГА · ПОДТВЕРЖДЕНИЕ БРОНИРОВАНИЯ</p>
-    <h1>Ваучер на заселение №{{ booking.pk }}</h1>
-    <p class="muted">Предъявите этот талон в печатном или электронном виде на стойке регистрации.</p>
-
+  <div class="voucher panel">
+    <p class="eyebrow">ПОДТВЕРЖДЕНИЕ БРОНИРОВАНИЯ</p>
+    <h1>Ваучер № {{ booking.pk }}</h1>
+    <p>Сохраните эту страницу для предъявления при заселении.</p>
     <dl>
-      <dt>Гостиница</dt>
-      <dd>ОТЕЛЬ ВОЛГА</dd>
-      <dt>Номер и категория</dt>
-      <dd>Номер {{ booking.room.room_number }} · {{ booking.room.room_type.name }} ({{ booking.room.floor }} этаж)</dd>
-      <dt>Клиент / контакт</dt>
+      <dt>Номер</dt>
+      <dd>{{ booking.room.room_number }} · {{ booking.room.room_type.name }}</dd>
+      <dt>Гость</dt>
       <dd>{{ booking.contact_name|default:booking.user.username }}</dd>
-      <dt>Проживающие гости</dt>
-      <dd>{% for g in booking.guests.all %}{{ g.full_name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ booking.user.username }}{% endfor %}</dd>
-      <dt>Дата заезда</dt>
-      <dd class="num">{{ booking.check_in_date|date:'d.m.Y' }} (после 14:00)</dd>
-      <dt>Дата выезда</dt>
-      <dd class="num">{{ booking.check_out_date|date:'d.m.Y' }} (до 12:00)</dd>
-      <dt>Количество ночей</dt>
-      <dd class="num">{{ booking.nights_count }}</dd>
+      <dt>Заезд</dt>
+      <dd class="num">{{ booking.check_in_date|date:'d.m.Y' }}</dd>
+      <dt>Выезд</dt>
+      <dd class="num">{{ booking.check_out_date|date:'d.m.Y' }}</dd>
       <dt>Статус</dt>
       <dd>{{ booking.get_status_display }}</dd>
-      <dt>Итоговая стоимость</dt>
+      <dt>Итого</dt>
       <dd class="num"><strong>{{ booking.total_price|floatformat:0 }} ₽</strong></dd>
     </dl>
-
-    <div class="row-actions no-print">
-      <button type="button" onclick="window.print()">Распечатать ваучер</button>
-      <a class="button secondary" href="{% url 'my_bookings' %}">Мои бронирования</a>
-    </div>
-  </section>
+    <button type="button" onclick="window.print()">Распечатать</button>
+    <a class="button secondary" href="{% url 'my_bookings' %}">Мои бронирования</a>
+  </div>
 {% endblock %}

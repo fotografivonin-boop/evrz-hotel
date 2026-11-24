@@ -77,7 +77,7 @@ def send_booking_email(subject, message, recipient_email):
         send_mail(
             subject=subject,
             message=message,
-            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@hotel-volga.local'),
+            from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', 'noreply@evrz-hotel.local'),
             recipient_list=[recipient_email],
             fail_silently=False,
         )
