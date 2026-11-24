@@ -1,77 +1,71 @@
-{% load static %}
-<!doctype html>
-<html lang="ru">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>
-      Статистика | EVRZ Hotel</title>
-    <link rel="icon" href="{% static 'images/evrz-icon.png' %}" type="image/png">
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}?v=7">
-    <script src="{% static 'js/app.js' %}?v=2" defer>
-    </script>
-  </head>
-  <body>
-    <header class="header-site">
-      <div class="wrap under_header">
-        <a class="logo" href="{% url 'catalog' %}">
-          <img class="logo-icon" src="{% static 'images/evrz-icon.png' %}" alt="" width="32" height="32"> EVRZ Hotel</a>
-        <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation">☰ <span>Меню</span>
-        </button>
-        <div id="navigation" class="gap">
-          <a href="{% url 'catalog' %}">Каталог номеров</a>
-          <a href="{% url 'about' %}">О EVRZ Hotel</a>
-          <a class="auth-{{ user.is_authenticated }}" href="{% url 'my_bookings' %}">Мои брони</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'staff_bookings' %}">Стойка</a>
-          <a class="staff-{{ user.is_staff }}" href="{% url 'stats' %}">Статистика</a>
-          <a class="guest-{{ user.is_authenticated }}" href="{% url 'login' %}">Войти</a>
-          <a class="nav-outline guest-{{ user.is_authenticated }}" href="{% url 'register' %}">Регистрация</a>
-          <form class="logout-{{ user.is_authenticated }}" method="post" action="{% url 'logout' %}">
-            {% csrf_token %}
-            <button class="nav-button">Выйти</button>
-          </form>
-        </div>
-      </div>
-    </header>
-    <div class="wrap main" role="main">
-      {% for message in messages %}
-          <div class="notice">{{ message }}</div>
-        {% endfor %}
-      
-  <p class="eyebrow">УПРАВЛЕНИЕ</p>
-  <h1>Статистика EVRZ Hotel</h1>
-  <p class="muted intro">Основные показатели по данным базы</p>
-  <div class="stats-grid">
-    <div class="panel">
-      <span>Всего номеров</span>
-      <strong>{{ room_count }}</strong>
+{% extends 'base.html' %}
+
+{% block title %}Статистика управляющего{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">ПАНЕЛЬ УПРАВЛЯЮЩЕГО</p>
+      <h1>Статистика «ОТЕЛЬ ВОЛГА»</h1>
+      <p class="muted">Сводные агрегированные показатели, график выручки и экспорт отчёта в CSV</p>
     </div>
+    <div class="row-actions">
+      <a class="button secondary" href="{% url 'manager_tariffs' %}">Сезонные тарифы</a>
+      <a class="button" href="{% url 'export_csv' %}{% if month %}?month={{ month }}{% endif %}">Скачать отчёт CSV</a>
+    </div>
+  </div>
+
+  <form method="get" action="{% url 'stats' %}" class="search-form">
+    <label for="stats-month" class="sr-only">Месяц отчёта</label>
+    <input id="stats-month" type="month" name="month" value="{{ month }}" style="max-width: 240px;">
+    <button type="submit">Показать период</button>
+    {% if month %}<a class="button secondary" href="{% url 'stats' %}">За всё время</a>{% endif %}
+  </form>
+
+  <section class="stats-grid" aria-label="Ключевые показатели">
     <div class="panel">
       <span>Всего бронирований</span>
       <strong>{{ booking_count }}</strong>
     </div>
     <div class="panel">
-      <span>Активные брони</span>
-      <strong>{{ active_count }}</strong>
-    </div>
-    <div class="panel">
-      <span>Оплачено</span>
+      <span>Оплаченная выручка</span>
       <strong>{{ revenue|floatformat:0 }} ₽</strong>
     </div>
-  </div>
-  <div class="panel">
-    <h2>Рабочие разделы</h2>
-    <p>Смотрите бронирования и график уборок или управляйте данными через панель администратора.</p>
-    <a class="button" href="{% url 'staff_bookings' %}">Панель стойки</a> <a class="button secondary" href="{% url 'admin:index' %}">Администрирование</a>
-  </div>
-
+    <div class="panel">
+      <span>Средний чек брони</span>
+      <strong>{{ avg_check|floatformat:0 }} ₽</strong>
     </div>
-    <footer>
-      <div class="wrap footer-inner">
-        <span class="logo">EVRZ Hotel</span>
-        <span>Удобное бронирование и комфортный отдых</span>
-        <a href="{% url 'about' %}">О EVRZ Hotel</a>
+    <div class="panel">
+      <span>Средняя оценка / Загрузка</span>
+      <strong>{{ avg_rating }} ★ · {{ occupancy_pct }}%</strong>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Выручка по категориям номеров</h2>
+    {% if chart_bars %}
+      <div class="chart-wrap">
+        <svg class="revenue-svg" viewBox="0 0 680 230" role="img" aria-label="Столбчатый график выручки по категориям номеров">
+          <line x1="20" y1="180" x2="660" y2="180" stroke="#CBD5E1" stroke-width="1" />
+          {% for bar in chart_bars %}
+            <rect x="{{ bar.x }}" y="{{ bar.y }}" width="64" height="{{ bar.height }}" rx="4" fill="#3B82F6" />
+            <text x="{{ bar.x|add:32 }}" y="{{ bar.y|add:-6 }}" text-anchor="middle" font-size="11" font-family="Roboto, Arial, sans-serif" font-weight="700" fill="#1E3A8A">{{ bar.value }} ₽</text>
+            <text x="{{ bar.x|add:32 }}" y="200" text-anchor="middle" font-size="10" font-family="Inter, Arial, sans-serif" fill="#4B5563">{{ bar.label }}</text>
+          {% endfor %}
+        </svg>
       </div>
-    </footer>
-  </body>
-</html>
+    {% else %}
+      <p class="muted">За выбранный период данных для построения графика нет.</p>
+    {% endif %}
+  </section>
+
+  <section class="panel">
+    <h2>Управление гостиницей</h2>
+    <p class="muted">Активных номеров в фонде: <strong class="num">{{ room_count }}</strong> · Активных броней: <strong class="num">{{ active_count }}</strong>.</p>
+    <div class="row-actions">
+      <a class="button" href="{% url 'staff_bookings' %}">Панель стойки</a>
+      <a class="button secondary" href="{% url 'manager_tariffs' %}">Управление тарифами</a>
+      <a class="button secondary" href="{% url 'admin:index' %}">Администрирование Django</a>
+    </div>
+  </section>
+{% endblock %}
