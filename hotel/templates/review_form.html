@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+  <div class="form-page">
+    <p class="breadcrumbs"><a href="{% url 'my_bookings' %}">Мои бронирования</a> / {{ title }}</p>
+    <div class="panel">
+      <h1>{{ title }}</h1>
+      {% if booking %}
+        <p class="muted">Бронь №{{ booking.pk }} · Номер {{ booking.room.room_number }} ({{ booking.room.room_type.name }})</p>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="error-list" role="alert">{{ form.non_field_errors }}</div>
+
+        {% if not booking and not is_edit %}
+          <div class="form-pole">
+            <label for="booking_id">Завершённое бронирование <span class="required">*</span></label>
+            <select id="booking_id" name="booking_id" required>
+              <option value="">Выберите бронирование...</option>
+              {% for b in eligible_bookings %}
+                <option value="{{ b.pk }}">Бронь №{{ b.pk }} — Номер {{ b.room.room_number }} ({{ b.check_in_date|date:'d.m.Y' }})</option>
+              {% endfor %}
+            </select>
+          </div>
+        {% elif booking and not is_edit %}
+          <input type="hidden" name="booking_id" value="{{ booking.pk }}">
+        {% endif %}
+
+        {% for field in form %}
+          <div class="form-pole">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {{ field.errors }}
+          </div>
+        {% endfor %}
+
+        <button class="full" type="submit">Сохранить отзыв</button>
+      </form>
+    </div>
+  </div>
+{% endblock %}
