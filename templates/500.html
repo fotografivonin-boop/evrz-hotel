@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}500 — Внутренняя ошибка сервера{% endblock %}
+
+{% block content %}
+  <section class="panel error-box" aria-labelledby="err-500-title">
+    <p class="eyebrow">ОШИБКА 500</p>
+    <h1 id="err-500-title">500 — Ошибка сервера</h1>
+    <p class="muted">На сервере произошла непредвиденная ошибка. Мы уже записали её в журнал — пожалуйста, попробуйте позже.</p>
+    <form action="{% url 'room_list' %}" method="get" class="search-form error-search">
+      <label class="sr-only" for="err-search-500">Поиск по номерам</label>
+      <input id="err-search-500" type="search" name="q" placeholder="Поиск по номеру или описанию...">
+      <button type="submit">Найти</button>
+    </form>
+    <div class="row-actions">
+      <a href="{% url 'room_list' %}" class="button">Вернуться на главную</a>
+    </div>
+  </section>
+{% endblock %}

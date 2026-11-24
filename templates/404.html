@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block title %}404 — Страница не найдена{% endblock %}
+
+{% block content %}
+  <section class="panel error-box" aria-labelledby="err-404-title">
+    <p class="eyebrow">ОШИБКА 404</p>
+    <h1 id="err-404-title">404 — Страница не найдена</h1>
+    <p class="muted">Такого номера или страницы на сайте нет. Возможно, ссылка устарела или введена с ошибкой.</p>
+    <form action="{% url 'room_list' %}" method="get" class="search-form error-search">
+      <label class="sr-only" for="err-search-404">Поиск по номерам</label>
+      <input id="err-search-404" type="search" name="q" placeholder="Поиск по номеру или описанию...">
+      <button type="submit">Найти номер</button>
+    </form>
+    <div class="row-actions">
+      <a href="{% url 'room_list' %}" class="button">Перейти на главную</a>
+    </div>
+  </section>
+{% endblock %}
