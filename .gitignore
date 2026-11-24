@@ -5,6 +5,7 @@ __pycache__/
 venv/
 .env
 logs/
+logs/*.log
 media/
 report_screenshots/
 staticfiles/
